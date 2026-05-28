@@ -1,0 +1,17 @@
+venv/
+.vscode/
+
+data/*
+!data/.gitkeep
+
+models/*.pth
+models/*.pt
+!models/.gitkeep
+
+# Ignore python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore notebooks checkpoints
+.ipynb_checkpoints/
