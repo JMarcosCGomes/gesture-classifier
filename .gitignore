@@ -11,6 +11,9 @@ models/*.pth
 models/*.pt
 !models/.gitkeep
 
+logs/*
+!logs/.gitkeep
+
 # Ignore python caches
 __pycache__/
 *.pyc
