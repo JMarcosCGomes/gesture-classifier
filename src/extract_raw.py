@@ -53,7 +53,10 @@ def main():
 
             if result.hand_landmarks:
                 hand_landmarks = result.hand_landmarks[0] #these landmarks are already normalized
-                hand_gesture = result.gestures[0][0].category_name
+                if result.gestures and result.gestures[0][0].category_name not in (None, 'None', ''):
+                    hand_gesture = result.gestures[0][0].category_name
+                else:
+                    hand_gesture = "Unknown"
 
                 row = [hand_gesture]
                 for landmark in hand_landmarks:
