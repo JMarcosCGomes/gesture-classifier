@@ -12,9 +12,6 @@ def main():
     RAW_DIR = PROJECT_ROOT / 'data' / 'raw'
     PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
     MODELS_DIR = PROJECT_ROOT / 'models'
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
     INPUT_DATA_DIR = RAW_DIR / 'hagrid-sample-30k-384p' / 'hagrid_30k' / 'train_val_like' 
     OUTPUT_DATA_DIR = RAW_DIR / 'raw_landmarks.csv'
