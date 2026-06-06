@@ -1,3 +1,4 @@
+import csv
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -20,6 +21,12 @@ def main():
     run_id = datetime.now().strftime("run%Y%m%d_%H%M%S")
     run_log_dir = LOGS_DIR / run_id
     run_log_dir.mkdir(parents=True, exist_ok=True)
+
+    # --- Metrics CSV ---
+    metrics_path = run_log_dir / 'metrics.csv'
+    metrics_file = open(metrics_path, 'w', newline='')
+    metrics_writer = csv.DictWriter(metrics_file, fieldnames=['epoch', 'train_loss', 'val_loss', 'train_accuracy', 'val_accuracy'])
+    metrics_writer.writeheader()
 
     # --- Dataset ---
     dataset = GestureDataset(CSV_PATH)
@@ -91,8 +98,18 @@ def main():
             best_val_loss = avg_val_loss
             torch.save(model.state_dict(), MODELS_DIR / f'{run_id}_best.pth')
 
+        # Log metrics
+        metrics_writer.writerow({
+            'epoch': epoch + 1,
+            'train_loss': round(avg_train_loss, 6),
+            'val_loss': round(avg_val_loss, 6),
+            'train_accuracy': round(train_accuracy, 6),
+            'val_accuracy': round(val_accuracy, 6)
+        })
+
 
     torch.save(model.state_dict(), MODELS_DIR / f'{run_id}_last.pth')
+    metrics_file.close()
     print("Training finished..")
 
 
