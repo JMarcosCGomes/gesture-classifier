@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from pathlib import Path
+from datetime import datetime
 
 from torch.utils.data import DataLoader, random_split
 from src.dataset import GestureDataset
@@ -13,18 +14,27 @@ def main():
     PROJECT_ROOT = SRC_PATH.parent
     CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'processed_landmarks.csv'
     MODELS_DIR = PROJECT_ROOT / 'models'
-    dataset = GestureDataset(CSV_PATH)
+    LOGS_DIR = PROJECT_ROOT / 'logs'
 
+    # --- Run ID --- run id using datetime, to keep unique model name
+    run_id = datetime.now().strftime("run%Y%m%d_%H%M%S")
+    run_log_dir = LOGS_DIR / run_id
+    run_log_dir.mkdir(parents=True, exist_ok=True)
+
+    # --- Dataset ---
+    dataset = GestureDataset(CSV_PATH)
     val_size = int(0.2 * len(dataset))
     train_size = len(dataset) - val_size
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42))
     train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
     
+    # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     model = SimpleModel().to(device)
 
+    # --- Training ---
     criteria = nn.CrossEntropyLoss()
     learning_rate = 0.001
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -79,9 +89,10 @@ def main():
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), MODELS_DIR / 'best_model.pth')
+            torch.save(model.state_dict(), MODELS_DIR / f'{run_id}_best.pth')
 
-    torch.save(model.state_dict(), MODELS_DIR / 'last_model.pth')
+
+    torch.save(model.state_dict(), MODELS_DIR / f'{run_id}_last.pth')
     print("Training finished..")
 
 
