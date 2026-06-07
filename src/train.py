@@ -1,13 +1,15 @@
 import csv
+import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
+
 from pathlib import Path
 from datetime import datetime
+from torch.utils.data import DataLoader, Subset
+from sklearn.model_selection import train_test_split
 
-from torch.utils.data import DataLoader, random_split
 from src.dataset import GestureDataset
-
 from src.network_models import SimpleModel
 
 def main():
@@ -30,12 +32,21 @@ def main():
 
     # --- Dataset ---
     dataset = GestureDataset(CSV_PATH)
-    val_size = int(0.2 * len(dataset))
-    train_size = len(dataset) - val_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42))
+    idxs = list(range(len(dataset)))
+    labels = [dataset[i][1].item() for i in idxs] # used in stratify
+
+    trainval_idx, test_idx = train_test_split(idxs, test_size=0.15, random_state=42, stratify=labels)
+    trainval_labels = [labels[i] for i in trainval_idx]
+    train_idx, val_idx = train_test_split(trainval_idx, test_size=0.176, random_state=42, stratify=trainval_labels) # 0.176*85~=0.15
+    
+    train_dataset = Subset(dataset, train_idx)
+    val_dataset = Subset(dataset, val_idx)
+    test_dataset = Subset(dataset, test_idx)
+
     train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=32, shuffle=False)
-    
+    test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
+
     # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
@@ -112,6 +123,35 @@ def main():
     metrics_file.close()
     print("Training finished..")
 
+    print("Testing initialized...")
+    model.load_state_dict(torch.load(MODELS_DIR / f'{run_id}_best.pth'))
+    model.eval()
+    test_loss = 0
+    test_correct = 0
+    test_total = 0
+    with torch.no_grad():
+        for X_batch, y_batch in test_loader:
+            X_batch = X_batch.to(device)
+            y_batch = y_batch.to(device)
+            predictions = model(X_batch)
+            loss = criteria(predictions, y_batch)
+
+            test_loss += loss.item()
+            test_correct += (predictions.argmax(dim=1) == y_batch).sum().item()
+            test_total += y_batch.size(0)
+        avg_test_loss = test_loss / len(test_loader)
+        test_accuracy = test_correct / test_total
+
+    test_results = {
+        'run_id': run_id,
+        'test_loss': round(avg_test_loss, 6),
+        'test_accuracy': round(test_accuracy, 6),
+        'best_val_loss': round(best_val_loss, 6),
+    }
+
+    with open(run_log_dir / 'test_results.json', 'w') as f:
+        json.dump(test_results, f, indent=2)
+    print("Testing finished...")
 
 if __name__ == "__main__":
     main()
