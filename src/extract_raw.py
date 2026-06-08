@@ -13,7 +13,14 @@ def main():
     PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
     MODELS_DIR = PROJECT_ROOT / 'models'
 
-    INPUT_DATA_DIR = RAW_DIR / 'hagrid-sample-30k-384p' / 'hagrid_30k' / 'train_val_like' 
+    DATASET_DIR = RAW_DIR / 'hagrid-sample-30k-384p' / 'hagrid_30k'
+
+    GESTURES_DIRS = [
+        DATASET_DIR / 'train_val_like',
+        DATASET_DIR / 'train_val_palm',
+        DATASET_DIR / 'train_val_peace',
+    ]
+
     OUTPUT_DATA_DIR = RAW_DIR / 'raw_landmarks.csv'
     MEDIAPIPE_MODEL_PATH = MODELS_DIR / 'gesture_recognizer.task'
 
@@ -27,50 +34,50 @@ def main():
     )
     mediapipe_recognizer = mp_vision.GestureRecognizer.create_from_options(options)
 
-    valid_extensions = ['.jpg', '.jpeg', '.png']
+    valid_extensions = {'.jpg', '.jpeg', '.png'}
     images_to_extract = []
-    if INPUT_DATA_DIR.exists():
-        for archive in INPUT_DATA_DIR.iterdir():
-            if archive.suffix.lower() in valid_extensions:
-                images_to_extract.append(archive)
-                #if len(images_to_extract) == 50:
-                #    break
 
+    for gesture_dir in GESTURES_DIRS:
+        if not gesture_dir.exists():
+            print(f"[WARN] Couldn't find target dir: {gesture_dir}")
+            continue
 
-    if not images_to_extract:
-        print("couldn't find any image")
-    else:
-        extracted_data = []
-        
-        for img_path in images_to_extract:
-            print(f"Processing: {img_path}")
+        images_to_extract = [p for p in gesture_dir.iterdir() if p.suffix.lower() in valid_extensions]
 
-            mp_image = mp.Image.create_from_file(str(img_path))
-            result = mediapipe_recognizer.recognize(mp_image)
+        if not images_to_extract:
+            print("couldn't find any image")
+        else:
+            extracted_data = []
+            
+            for img_path in images_to_extract:
+                print(f"Processing: {img_path}")
 
-            if result.hand_landmarks:
-                hand_landmarks = result.hand_landmarks[0] #these landmarks are already normalized
-                if result.gestures and result.gestures[0][0].category_name not in (None, 'None', ''):
-                    hand_gesture = result.gestures[0][0].category_name
+                mp_image = mp.Image.create_from_file(str(img_path))
+                result = mediapipe_recognizer.recognize(mp_image)
+
+                if result.hand_landmarks:
+                    hand_landmarks = result.hand_landmarks[0] #these landmarks are already normalized
+                    if result.gestures and result.gestures[0][0].category_name not in (None, 'None', ''):
+                        hand_gesture = result.gestures[0][0].category_name
+                    else:
+                        hand_gesture = "Unknown"
+
+                    row = [hand_gesture]
+                    for landmark in hand_landmarks:
+                        row.extend([landmark.x, landmark.y])
+
+                    extracted_data.append(row)
+                    print(f" Could detect: {hand_gesture}")
                 else:
-                    hand_gesture = "Unknown"
-
-                row = [hand_gesture]
-                for landmark in hand_landmarks:
-                    row.extend([landmark.x, landmark.y])
-
-                extracted_data.append(row)
-                print(f" Could detect: {hand_gesture}")
-            else:
-                print(" Couldn't detect a hand with mediapipe.")
+                    print(" Couldn't detect a hand with mediapipe.")
             
 
-        if extracted_data:
-            with open(OUTPUT_DATA_DIR, mode='w', newline='') as f:
-                writer = csv.writer(f)
-                header = ['label'] + [f'{axis}{i}' for i in range(21) for axis in ('x', 'y')]
-                writer.writerow(header)
-                writer.writerows(extracted_data)
+    if extracted_data:
+        with open(OUTPUT_DATA_DIR, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            header = ['label'] + [f'{axis}{i}' for i in range(21) for axis in ('x', 'y')]
+            writer.writerow(header)
+            writer.writerows(extracted_data)
 
     mediapipe_recognizer.close()
 
