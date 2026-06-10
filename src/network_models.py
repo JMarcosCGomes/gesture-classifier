@@ -1,8 +1,8 @@
 import torch.nn as nn
-
+#ele pegou 5 classes
 
 class SimpleModel(nn.Module):
-    def __init__(self, num_classes=3, input_size=42):
+    def __init__(self, num_classes=5, input_size=42):
         super().__init__()
 
         self.layers = nn.Sequential(
@@ -27,7 +27,7 @@ class SimpleModel(nn.Module):
     
 
 class DeepTestModel(nn.Module):
-    def __init__(self, num_classes=3, input_size=42):
+    def __init__(self, num_classes=5, input_size=42):
         super().__init__()
 
         self.layers = nn.Sequential(

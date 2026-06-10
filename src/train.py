@@ -59,6 +59,9 @@ def main():
     
     print("Training initialized..")
     epochs = 500
+    PATIENCE = 20
+    patience_counter = 0
+    DELTA = 1e-4
     best_val_loss = float('inf')
     for epoch in range(epochs):
 
@@ -105,9 +108,15 @@ def main():
             print(f"Train - Loss: {avg_train_loss:.4f} | Accuracy: {train_accuracy:.4f}")
             print(f"Val - Loss: {avg_val_loss:.4f} | Accuracy: {val_accuracy:.4f}")
 
-        if avg_val_loss < best_val_loss:
+        if avg_val_loss < (best_val_loss - DELTA):
             best_val_loss = avg_val_loss
+            patience_counter = 0
             torch.save(model.state_dict(), MODELS_DIR / f'{run_id}_best.pth')
+        else:
+            patience_counter += 1
+            if patience_counter >= PATIENCE:
+                print(f"Early stopping at {epoch + 1}, patience = {PATIENCE} epochs")
+                break
 
         # Log metrics
         metrics_writer.writerow({
@@ -147,6 +156,7 @@ def main():
         'test_loss': round(avg_test_loss, 6),
         'test_accuracy': round(test_accuracy, 6),
         'best_val_loss': round(best_val_loss, 6),
+        'stopped_early': patience_counter >= PATIENCE,
     }
 
     with open(run_log_dir / 'test_results.json', 'w') as f:
