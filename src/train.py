@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
 
 from src.dataset import GestureDataset
-from src.network_models import SimpleModel
+from src.network_models import SimpleModel, DeepTestModel
 
 def main():
     SRC_PATH = Path(__file__).resolve().parent
@@ -51,6 +51,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     model = SimpleModel().to(device)
+    #model = DeepTestModel().to(device)
 
     # --- Training ---
     criteria = nn.CrossEntropyLoss()
@@ -59,7 +60,7 @@ def main():
     
     print("Training initialized..")
     epochs = 500
-    PATIENCE = 20
+    PATIENCE = 100
     patience_counter = 0
     DELTA = 1e-4
     best_val_loss = float('inf')
@@ -133,6 +134,8 @@ def main():
     print("Training finished..")
 
     print("Testing initialized...")
+    all_preds = []
+    all_labels = []
     model.load_state_dict(torch.load(MODELS_DIR / f'{run_id}_best.pth'))
     model.eval()
     test_loss = 0
@@ -144,6 +147,9 @@ def main():
             y_batch = y_batch.to(device)
             predictions = model(X_batch)
             loss = criteria(predictions, y_batch)
+
+            all_preds.extend(predictions.argmax(dim=1).cpu().tolist())
+            all_labels.extend(y_batch.cpu().tolist())
 
             test_loss += loss.item()
             test_correct += (predictions.argmax(dim=1) == y_batch).sum().item()
@@ -157,7 +163,10 @@ def main():
         'test_accuracy': round(test_accuracy, 6),
         'best_val_loss': round(best_val_loss, 6),
         'stopped_early': patience_counter >= PATIENCE,
-    }
+        'predictions': all_preds,
+        'labels': all_labels,
+        'class_names': dataset.idx_to_label,
+    } #talvez eu adicione em algum lugar o nome do network_model, vejo isso dps
 
     with open(run_log_dir / 'test_results.json', 'w') as f:
         json.dump(test_results, f, indent=2)
