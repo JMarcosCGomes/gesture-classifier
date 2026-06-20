@@ -19,6 +19,8 @@ def main():
         DATASET_DIR / 'train_val_like',
         DATASET_DIR / 'train_val_palm',
         DATASET_DIR / 'train_val_peace',
+        DATASET_DIR / 'train_val_mute',
+        DATASET_DIR / 'train_val_fist',
     ]
 
     OUTPUT_DATA_DIR = RAW_DIR / 'raw_landmarks.csv'
@@ -36,6 +38,7 @@ def main():
 
     valid_extensions = {'.jpg', '.jpeg', '.png'}
     images_to_extract = []
+    extracted_data = []
 
     for gesture_dir in GESTURES_DIRS:
         if not gesture_dir.exists():
@@ -47,7 +50,6 @@ def main():
         if not images_to_extract:
             print("couldn't find any image")
         else:
-            extracted_data = []
             
             for img_path in images_to_extract:
                 print(f"Processing: {img_path}")
