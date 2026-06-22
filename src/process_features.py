@@ -64,14 +64,35 @@ TRIPLETS_ABDUCTION = {
     "index_middle_mcp":  (5, 0, 9), #
     "middle_ring_mcp": (9, 0, 13), #
     "ring_pinky_mcp": (13, 0, 17), #
-    "thumb_index_tip": (4, 0, 8), #
 }
 
-#TODO: ADD TRIPLETS_PINCH (thumb_index_tip and others)
+
+TRIPLETS_PINCH = {
+    "thumb_index_tip": (4, 0, 8), #
+    "thumb_middle_tip": (4, 0, 12), #
+    "thumb_ring_tip": (4, 0, 16), #
+    "thumb_pinky_tip": (4, 0, 20), #
+}
+
+#honestamente eu não acho que precisa de tudo isso, o abduction pega o bastante pros que nn são do thumb_algo
+TRIPLETS_PINCH_ALL = {
+    "thumb_index_tip": (4, 0, 8), #
+    "thumb_middle_tip": (4, 0, 12), #
+    "thumb_ring_tip": (4, 0, 16), #
+    "thumb_pinky_tip": (4, 0, 20), #
+    "index_middle_tip": (8, 0, 12), #
+    "index_ring_tip": (8, 0, 16), #
+    "index_pinky_tip": (8, 0, 20), #
+    "middle_ring_tip": (12, 0, 16), #
+    "middle_pinky_tip": (12, 0, 20), #
+    "ring_pinky_tip": (16, 0, 20), #
+}
+
  
 JOINT_ANGLE_COLUMNS = [f"joint_angle_{name}" for name in TRIPLETS_JOINT]
 ABDUCTION_ANGLE_COLUMNS = [f"abduction_angle_{name}" for name in TRIPLETS_ABDUCTION]
-ANGLES_COLUMNS = JOINT_ANGLE_COLUMNS + ABDUCTION_ANGLE_COLUMNS
+PINCH_ANGLE_COLUMNS = [f"pinch_angle_{name}" for name in TRIPLETS_PINCH]
+ANGLES_COLUMNS = JOINT_ANGLE_COLUMNS + ABDUCTION_ANGLE_COLUMNS + PINCH_ANGLE_COLUMNS
 
 
 def get_point(row_coords, idx):
@@ -105,13 +126,21 @@ def extract_abduction_angles(row_coords):
     return angles
 
 
+def extract_pinch_angles(row_coords):
+    angles = []
+    for a, b, c in TRIPLETS_PINCH.values():
+        angles.append(angle_between(row_coords, a, b, c))
+    return angles
+
+
 def process_features(row_coords):
     new_row_coords = center_on_wrist(row_coords)
     new_row_coords = normalize(new_row_coords)
 
     joint_angles = extract_joint_angles(new_row_coords)
     abduction_angles = extract_abduction_angles(new_row_coords)
-    angles = joint_angles + abduction_angles
+    pinch_angles = extract_pinch_angles(new_row_coords)
+    angles = joint_angles + abduction_angles + pinch_angles
 
     return angles
 
