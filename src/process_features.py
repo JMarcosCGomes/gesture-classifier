@@ -13,7 +13,7 @@ def center_on_wrist(row_coords):
     return new_row_coords
 
 
-def normalize(row_coords):
+def normalize_coordinates(row_coords):
     xs = row_coords[0::2]
     ys = row_coords[1::2]
     scale = np.max(np.abs(np.concatenate([xs, ys])))
@@ -133,16 +133,22 @@ def extract_pinch_angles(row_coords):
     return angles
 
 
+def normalize_angles(angles):
+    normalized_angles = np.array(angles) / 180.0
+    return normalized_angles
+
+
 def process_features(row_coords):
     new_row_coords = center_on_wrist(row_coords)
-    new_row_coords = normalize(new_row_coords)
+    new_row_coords = normalize_coordinates(new_row_coords)
 
     joint_angles = extract_joint_angles(new_row_coords)
     abduction_angles = extract_abduction_angles(new_row_coords)
     pinch_angles = extract_pinch_angles(new_row_coords)
     angles = joint_angles + abduction_angles + pinch_angles
+    normalized_angles = normalize_angles(angles)
 
-    return angles
+    return normalized_angles
 
 
 def main():
