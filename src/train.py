@@ -50,7 +50,7 @@ def main():
     # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
-    model = SimpleModel().to(device)
+    model = SimpleModel(num_classes=7).to(device)
     #model = DeepTestModel().to(device)
 
     # --- Training ---
@@ -159,6 +159,8 @@ def main():
 
     test_results = {
         'run_id': run_id,
+        'model_name': model.__class__.__name__,
+        'csv_path': str(CSV_PATH),
         'test_loss': round(avg_test_loss, 6),
         'test_accuracy': round(test_accuracy, 6),
         'best_val_loss': round(best_val_loss, 6),
