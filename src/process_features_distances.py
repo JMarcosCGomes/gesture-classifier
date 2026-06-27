@@ -37,11 +37,19 @@ WRIST (0)
 ├── RING/ANELAR:   MCP(13)→ PIP(14)→ DIP(15)→ TIP(16)
 └── PINKY/MÍNIMO:  MCP(17)→ PIP(18)→ DIP(19)→ TIP(20)
 """
-#nesse caso vou trabalhar com distancia entre pares
-#estou me obrigando a commitar direito, ta só o new_row_coords aqui
 
 
+PAIRS_TIP_TO_WRIST = {
+    "thumb_tip_wrist": (4, 0), #
+    "index_tip_wrist": (8, 0), #
+    "middle_tip_wrist": (12, 0), #
+    "ring_tip_wrist": (16, 0), #
+    "pinky_tip_wrist": (20, 0), #
+}
 
+TIP_TO_WRIST_COLUMNS = [f"dist_tip_wrist_{name}" for name in PAIRS_TIP_TO_WRIST]
+
+DISTANCE_COLUMNS = PAIRS_TIP_TO_WRIST
 
 # ---------------------------------------------------------------------
 
@@ -49,12 +57,27 @@ def get_point(row_coords, idx):
     point = np.array([row_coords[idx * 2], row_coords[idx * 2 + 1]])
     return point
 
+def euclidean_distance(row_coords, a, b):
+    pa, pb = get_point(row_coords, a), get_point(row_coords, b)
+    distance = float(np.linalg.norm(pa - pb))
+    return distance
+
+def extract_tip_to_wrist(row_coords):
+    distances = []
+    for a, b in PAIRS_TIP_TO_WRIST.values():
+        distances.append(euclidean_distance(row_coords, a, b))
+    return distances
+
 
 def process_features(row_coords):
     new_row_coords = center_on_wrist(row_coords)
     new_row_coords = normalize_coordinates(new_row_coords)
+    
+    ttw_distances = extract_tip_to_wrist(row_coords)
 
-    return new_row_coords
+    distances = ttw_distances
+
+    return distances
 
 
 def main():
@@ -67,9 +90,8 @@ def main():
     coords = df.drop(columns='label').values
     processed = np.array([process_features(row) for row in coords])
     
-    #feature_columns = ANGLES_COLUMNS
-    #processed_df = pd.DataFrame(processed, columns=feature_columns)
-    processed_df = pd.DataFrame(processed)
+    feature_columns = DISTANCE_COLUMNS
+    processed_df = pd.DataFrame(processed, columns=feature_columns)
     processed_df.insert(0, 'label', df['label'].values)
     processed_df.to_csv(OUTPUT_PATH, index=False)
 
