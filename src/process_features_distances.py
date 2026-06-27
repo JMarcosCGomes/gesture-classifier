@@ -47,9 +47,18 @@ PAIRS_TIP_TO_WRIST = {
     "pinky_tip_wrist": (20, 0), #
 }
 
-TIP_TO_WRIST_COLUMNS = [f"dist_tip_wrist_{name}" for name in PAIRS_TIP_TO_WRIST]
+PAIRS_TIP_TO_THUMB = {
+    "index_tip_thumb": (8, 4), #
+    "middle_tip_thumb": (12, 4), #
+    "ring_tip_thumb": (16, 4), #
+    "pinky_tip_thumb": (20, 4), #
+}
 
-DISTANCE_COLUMNS = PAIRS_TIP_TO_WRIST
+#esses nomes tão feios, depois avalia uma forma melhor de nomear
+TIP_TO_WRIST_COLUMNS = [f"dist_tip_wrist_{name}" for name in PAIRS_TIP_TO_WRIST]
+TIP_TO_THUMB_COLUMNS = [f"dist_tip_thumb_{name}" for name in PAIRS_TIP_TO_THUMB]
+
+DISTANCE_COLUMNS = TIP_TO_WRIST_COLUMNS + TIP_TO_THUMB_COLUMNS
 
 # ---------------------------------------------------------------------
 
@@ -62,6 +71,7 @@ def euclidean_distance(row_coords, a, b):
     distance = float(np.linalg.norm(pa - pb))
     return distance
 
+
 def extract_tip_to_wrist(row_coords):
     distances = []
     for a, b in PAIRS_TIP_TO_WRIST.values():
@@ -69,13 +79,21 @@ def extract_tip_to_wrist(row_coords):
     return distances
 
 
+def extract_tip_to_thumb(row_coords):
+    distances = []
+    for a, b in PAIRS_TIP_TO_THUMB.values():
+        distances.append(euclidean_distance(row_coords, a, b))
+    return distances
+
+
 def process_features(row_coords):
     new_row_coords = center_on_wrist(row_coords)
     new_row_coords = normalize_coordinates(new_row_coords)
-    
-    ttw_distances = extract_tip_to_wrist(row_coords)
 
-    distances = ttw_distances
+    ttw_distances = extract_tip_to_wrist(row_coords)
+    ttt_distances = extract_tip_to_thumb(row_coords)
+
+    distances = ttw_distances + ttt_distances
 
     return distances
 
