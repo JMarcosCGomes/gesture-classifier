@@ -40,34 +40,34 @@ WRIST (0)
 
 
 PAIRS_TIP_TO_WRIST = {
-    "thumb_tip_wrist": (4, 0), #
-    "index_tip_wrist": (8, 0), #
-    "middle_tip_wrist": (12, 0), #
-    "ring_tip_wrist": (16, 0), #
-    "pinky_tip_wrist": (20, 0), #
+    "thumb": (4, 0), #
+    "index": (8, 0), #
+    "middle": (12, 0), #
+    "ring": (16, 0), #
+    "pinky": (20, 0), #
 }
 
 PAIRS_TIP_TO_THUMB = {
-    "index_tip_thumb": (8, 4), #
-    "middle_tip_thumb": (12, 4), #
-    "ring_tip_thumb": (16, 4), #
-    "pinky_tip_thumb": (20, 4), #
+    "index": (8, 4), #
+    "middle": (12, 4), #
+    "ring": (16, 4), #
+    "pinky": (20, 4), #
 }
 
 PAIRS_PIP_TO_WRIST = {
-    "thumb_mcp_wrist": (2, 0), #thumb eh diferente
-    "index_pip_wrist": (6, 0), #
-    "middle_pip_wrist": (10, 0), #
-    "ring_pip_wrist": (14, 0), #
-    "pinky_pip_wrist": (18, 0), #
+    "thumb_mcp": (2, 0), #thumb eh diferente
+    "index": (6, 0), #
+    "middle": (10, 0), #
+    "ring": (14, 0), #
+    "pinky": (18, 0), #
 }
 
 PAIRS_MCP_TO_WRIST = {
-    "thumb_cmc_wrist": (1, 0), #thumb eh diferente
-    "index_mcp_wrist": (5, 0), #
-    "middle_mcp_wrist": (9, 0), #
-    "ring_mcp_wrist": (13, 0), #
-    "pinky_mcp_wrist": (17, 0), #
+    "thumb_cmc": (1, 0), #thumb eh diferente
+    "index": (5, 0), #
+    "middle": (9, 0), #
+    "ring": (13, 0), #
+    "pinky": (17, 0), #
 }
 
 
