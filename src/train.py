@@ -16,6 +16,8 @@ def main():
     SRC_PATH = Path(__file__).resolve().parent
     PROJECT_ROOT = SRC_PATH.parent
     CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'processed_landmarks.csv'
+    #CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_angles.csv'
+    #CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_distances.csv'
     MODELS_DIR = PROJECT_ROOT / 'models'
     LOGS_DIR = PROJECT_ROOT / 'logs'
 
@@ -34,6 +36,8 @@ def main():
     dataset = GestureDataset(CSV_PATH)
     idxs = list(range(len(dataset)))
     labels = [dataset[i][1].item() for i in idxs] # used in stratify
+    input_size = dataset.X.shape[1]  # used in model
+    num_classes = len(dataset.label_to_idx) # used in model
 
     trainval_idx, test_idx = train_test_split(idxs, test_size=0.15, random_state=42, stratify=labels)
     trainval_labels = [labels[i] for i in trainval_idx]
@@ -50,8 +54,7 @@ def main():
     # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
-    model = SimpleModel(num_classes=7).to(device)
-    #model = DeepTestModel().to(device)
+    model = SimpleModel(num_classes=num_classes, input_size=input_size).to(device)
 
     # --- Training ---
     criteria = nn.CrossEntropyLoss()
@@ -160,6 +163,8 @@ def main():
     test_results = {
         'run_id': run_id,
         'model_name': model.__class__.__name__,
+        'input_size': input_size,
+        'num_classes': num_classes,
         'csv_path': str(CSV_PATH),
         'test_loss': round(avg_test_loss, 6),
         'test_accuracy': round(test_accuracy, 6),
@@ -168,7 +173,7 @@ def main():
         'predictions': all_preds,
         'labels': all_labels,
         'class_names': dataset.idx_to_label,
-    } #talvez eu adicione em algum lugar o nome do network_model, vejo isso dps
+    }
 
     with open(run_log_dir / 'test_results.json', 'w') as f:
         json.dump(test_results, f, indent=2)
