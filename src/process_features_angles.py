@@ -89,9 +89,9 @@ TRIPLETS_PINCH_ALL = {
 }
 
  
-JOINT_ANGLE_COLUMNS = [f"joint_angle_{name}" for name in TRIPLETS_JOINT]
-ABDUCTION_ANGLE_COLUMNS = [f"abduction_angle_{name}" for name in TRIPLETS_ABDUCTION]
-PINCH_ANGLE_COLUMNS = [f"pinch_angle_{name}" for name in TRIPLETS_PINCH]
+JOINT_ANGLE_COLUMNS = [f"angle_joint_{name}" for name in TRIPLETS_JOINT]
+ABDUCTION_ANGLE_COLUMNS = [f"angle_abduction_{name}" for name in TRIPLETS_ABDUCTION]
+PINCH_ANGLE_COLUMNS = [f"angle_pinch_{name}" for name in TRIPLETS_PINCH]
 ANGLES_COLUMNS = JOINT_ANGLE_COLUMNS + ABDUCTION_ANGLE_COLUMNS + PINCH_ANGLE_COLUMNS
 
 
