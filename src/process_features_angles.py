@@ -155,7 +155,7 @@ def main():
     SRC_PATH = Path(__file__).resolve().parent
     PROJECT_ROOT = SRC_PATH.parent
     INPUT_PATH = PROJECT_ROOT / 'data' / 'raw' / 'raw_landmarks.csv'
-    OUTPUT_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_landmarks.csv'
+    OUTPUT_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_angles.csv'
 
     df = pd.read_csv(INPUT_PATH)
     coords = df.drop(columns='label').values
