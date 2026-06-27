@@ -1,0 +1,78 @@
+import numpy as np
+import pandas as pd
+from pathlib import Path
+
+
+def center_on_wrist(row_coords):
+    xs = row_coords[0::2]
+    ys = row_coords[1::2]
+    xs = xs - xs[0]
+    ys = ys - ys[0]
+
+    new_row_coords = np.stack([xs, ys], axis=1).flatten()
+    return new_row_coords
+
+
+def normalize_coordinates(row_coords):
+    xs = row_coords[0::2]
+    ys = row_coords[1::2]
+    scale = np.max(np.abs(np.concatenate([xs, ys])))
+    if scale == 0:
+        raise ValueError("Scale is zero, landmark data may be corrupted.")
+    xs = xs / scale
+    ys = ys / scale
+
+    new_row_coords = np.stack([xs, ys], axis=1).flatten()
+    return new_row_coords
+
+
+# ---------------------------------------------------------------------
+
+"""
+(ref: https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker )
+WRIST (0)
+├── THUMB/POLEGAR:  CMC(1) → MCP(2) → IP(3)  → TIP(4)
+├── INDEX/INDICADOR:  MCP(5) → PIP(6) → DIP(7) → TIP(8)
+├── MIDDLE/MEDIO: MCP(9) → PIP(10)→ DIP(11)→ TIP(12)
+├── RING/ANELAR:   MCP(13)→ PIP(14)→ DIP(15)→ TIP(16)
+└── PINKY/MÍNIMO:  MCP(17)→ PIP(18)→ DIP(19)→ TIP(20)
+"""
+#nesse caso vou trabalhar com distancia entre pares
+#estou me obrigando a commitar direito, ta só o new_row_coords aqui
+
+
+
+
+# ---------------------------------------------------------------------
+
+def get_point(row_coords, idx):
+    point = np.array([row_coords[idx * 2], row_coords[idx * 2 + 1]])
+    return point
+
+
+def process_features(row_coords):
+    new_row_coords = center_on_wrist(row_coords)
+    new_row_coords = normalize_coordinates(new_row_coords)
+
+    return new_row_coords
+
+
+def main():
+    SRC_PATH = Path(__file__).resolve().parent
+    PROJECT_ROOT = SRC_PATH.parent
+    INPUT_PATH = PROJECT_ROOT / 'data' / 'raw' / 'raw_landmarks.csv'
+    OUTPUT_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_distances.csv'
+
+    df = pd.read_csv(INPUT_PATH)
+    coords = df.drop(columns='label').values
+    processed = np.array([process_features(row) for row in coords])
+    
+    #feature_columns = ANGLES_COLUMNS
+    #processed_df = pd.DataFrame(processed, columns=feature_columns)
+    processed_df = pd.DataFrame(processed)
+    processed_df.insert(0, 'label', df['label'].values)
+    processed_df.to_csv(OUTPUT_PATH, index=False)
+
+
+if __name__ == "__main__":
+    main()
