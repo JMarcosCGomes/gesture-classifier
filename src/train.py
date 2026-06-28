@@ -21,19 +21,9 @@ def main():
     MODELS_DIR = PROJECT_ROOT / 'models'
     LOGS_DIR = PROJECT_ROOT / 'logs'
 
-    # --- Run ID --- run id using datetime, to keep unique model name
-    run_id = datetime.now().strftime("run%Y%m%d_%H%M%S")
-    run_log_dir = LOGS_DIR / run_id
-    run_log_dir.mkdir(parents=True, exist_ok=True)
-
-    # --- Metrics CSV ---
-    metrics_path = run_log_dir / 'metrics.csv'
-    metrics_file = open(metrics_path, 'w', newline='')
-    metrics_writer = csv.DictWriter(metrics_file, fieldnames=['epoch', 'train_loss', 'val_loss', 'train_accuracy', 'val_accuracy'])
-    metrics_writer.writeheader()
-
     # --- Dataset ---
     dataset = GestureDataset(CSV_PATH)
+    dataset_name = CSV_PATH.stem
     idxs = list(range(len(dataset)))
     labels = [dataset[i][1].item() for i in idxs] # used in stratify
     input_size = dataset.X.shape[1]  # used in model
@@ -55,6 +45,19 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     model = SimpleModel(num_classes=num_classes, input_size=input_size).to(device)
+    model_name = model.__class__.__name__
+
+    # --- Run ID --- run id using datetime, to keep unique model name
+    now = datetime.now().strftime("run%Y%m%d_%H%M%S")
+    run_id = f'{now}_{dataset_name}_{model_name}'
+    run_log_dir = LOGS_DIR / run_id
+    run_log_dir.mkdir(parents=True, exist_ok=True)
+
+    # --- Metrics CSV ---
+    metrics_path = run_log_dir / 'metrics.csv'
+    metrics_file = open(metrics_path, 'w', newline='')
+    metrics_writer = csv.DictWriter(metrics_file, fieldnames=['epoch', 'train_loss', 'val_loss', 'train_accuracy', 'val_accuracy'])
+    metrics_writer.writeheader()
 
     # --- Training ---
     criteria = nn.CrossEntropyLoss()
@@ -162,7 +165,7 @@ def main():
 
     test_results = {
         'run_id': run_id,
-        'model_name': model.__class__.__name__,
+        'model_name': model_name,
         'input_size': input_size,
         'num_classes': num_classes,
         'csv_path': str(CSV_PATH),
