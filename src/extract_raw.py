@@ -15,11 +15,13 @@ def main():
     DATASET_DIR = RAW_DIR / 'hagrid-sample-30k-384p' / 'hagrid_30k'
 
     GESTURES_CONFIG = [
-        {"label": "like", "dir": DATASET_DIR / 'train_val_like'},
-        {"label": "palm", "dir": DATASET_DIR / 'train_val_palm'},
-        {"label": "peace", "dir": DATASET_DIR / 'train_val_peace'},
-        {"label": "mute", "dir": DATASET_DIR / 'train_val_mute'},
         {"label": "fist", "dir": DATASET_DIR / 'train_val_fist'},
+        {"label": "palm", "dir": DATASET_DIR / 'train_val_palm'},
+        {"label": "like", "dir": DATASET_DIR / 'train_val_like'},
+        {"label": "peace", "dir": DATASET_DIR / 'train_val_peace'},
+        {"label": "call", "dir": DATASET_DIR / 'train_val_call'},
+        {"label": "ok", "dir": DATASET_DIR / 'train_val_ok'},
+        {"label": "rock", "dir": DATASET_DIR / 'train_val_rock'},
     ]
 
     OUTPUT_DATA_DIR = RAW_DIR / 'raw_landmarks.csv'
