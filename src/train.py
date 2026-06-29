@@ -1,3 +1,4 @@
+import argparse
 import csv
 import json
 import torch
@@ -13,11 +14,25 @@ from src.dataset import GestureDataset
 from src.network_models import SimpleModel, DeepTestModel
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", choices=["landmarks", "angles", "distances"], default="landmarks")
+    parser.add_argument("--model", choices=["simple", "deep"], default="simple")
+    args = parser.parse_args()
+
+    DATASETS = {
+    "landmarks": "processed_landmarks.csv",
+    "angles": "featured_angles.csv",
+    "distances": "featured_distances.csv",
+    }
+    
+    MODELS = {
+    "simple": SimpleModel,
+    "deep": DeepTestModel,
+    }
+
     SRC_PATH = Path(__file__).resolve().parent
     PROJECT_ROOT = SRC_PATH.parent
-    CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'processed_landmarks.csv'
-    #CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_angles.csv'
-    #CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / 'featured_distances.csv'
+    CSV_PATH = PROJECT_ROOT / 'data' / 'processed' / DATASETS[args.dataset]
     MODELS_DIR = PROJECT_ROOT / 'models'
     LOGS_DIR = PROJECT_ROOT / 'logs'
 
@@ -44,7 +59,7 @@ def main():
     # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
-    model = SimpleModel(num_classes=num_classes, input_size=input_size).to(device)
+    model = MODELS[args.model](num_classes=num_classes, input_size=input_size).to(device)
     model_name = model.__class__.__name__
 
     # --- Run ID --- run id using datetime, to keep unique model name
