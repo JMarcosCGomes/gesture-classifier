@@ -12,7 +12,7 @@ def center_on_wrist(row_coords):
     return new_row_coords
 
 
-def normalize(row_coords):
+def normalize_coordinates(row_coords):
     xs = row_coords[0::2]
     ys = row_coords[1::2]
     scale = np.max(np.abs(np.concatenate([xs, ys])))
@@ -27,7 +27,7 @@ def normalize(row_coords):
 
 def process_raw(row_coords):
     new_row_coords = center_on_wrist(row_coords)
-    new_row_coords = normalize(new_row_coords)
+    new_row_coords = normalize_coordinates(new_row_coords)
     return new_row_coords
 
 

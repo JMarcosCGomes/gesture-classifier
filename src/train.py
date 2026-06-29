@@ -15,7 +15,7 @@ from src.network_models import SimpleModel, DeepTestModel
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", choices=["landmarks", "angles", "distances"], default="landmarks")
+    parser.add_argument("--dataset", choices=["landmarks", "angles", "distances", "combined"], default="landmarks")
     parser.add_argument("--model", choices=["simple", "deep"], default="simple")
     args = parser.parse_args()
 
@@ -23,6 +23,7 @@ def main():
     "landmarks": "processed_landmarks.csv",
     "angles": "featured_angles.csv",
     "distances": "featured_distances.csv",
+    "combined": "featured_combined.csv",
     }
     
     MODELS = {
