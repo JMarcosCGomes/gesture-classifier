@@ -17,6 +17,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=["landmarks", "angles", "distances", "combined"], default="landmarks")
     parser.add_argument("--model", choices=["linear", "onelayer", "twolayer"], default="twolayer")
+    parser.add_argument("--train-frac", type=float, default=1.0, help="quantos '%' do dataset vai ser usado no treino")
+    parser.add_argument("--dropout", type=float, default=0.2, help="dropout do networkmodel")
     args = parser.parse_args()
 
     DATASETS = {
@@ -50,6 +52,13 @@ def main():
     trainval_labels = [labels[i] for i in trainval_idx]
     train_idx, val_idx = train_test_split(trainval_idx, test_size=0.176, random_state=42, stratify=trainval_labels) # 0.176*85~=0.15
     
+    #pos split faz a possivel diminuição nos dados de treino
+    if args.train_frac < 1.0:
+        train_labels = [labels[i] for i in train_idx]
+        train_idx, _ = train_test_split(train_idx, train_size=args.train_frac, random_state=42, stratify=train_labels)
+        print(f"Using {len(train_idx)} train samples ({args.train_frac*100:.0f}%)")
+
+
     train_dataset = Subset(dataset, train_idx)
     val_dataset = Subset(dataset, val_idx)
     test_dataset = Subset(dataset, test_idx)
@@ -61,12 +70,12 @@ def main():
     # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
-    model = MODELS[args.model](num_classes=num_classes, input_size=input_size).to(device)
+    model = MODELS[args.model](num_classes=num_classes, input_size=input_size, dropout=args.dropout).to(device)
     model_name = model.__class__.__name__
 
     # --- Run ID --- run id using datetime, to keep unique model name
     now = datetime.now().strftime("run%Y%m%d_%H%M%S")
-    run_id = f'{now}_{dataset_name}_{model_name}'
+    run_id = f'{now}_{dataset_name}_{model_name}_{args.train_frac}'
     run_log_dir = LOGS_DIR / run_id
     run_log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -83,7 +92,7 @@ def main():
     
     print("Training initialized..")
     epochs = 500
-    PATIENCE = 100
+    PATIENCE = 30
     patience_counter = 0
     DELTA = 1e-4
     best_val_loss = float('inf')

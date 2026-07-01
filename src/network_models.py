@@ -2,8 +2,9 @@ import torch.nn as nn
 
 
 class LinearModel(nn.Module):
-    def __init__(self, num_classes, input_size):
+    def __init__(self, num_classes, input_size, dropout=0.2):
         super().__init__()
+        #não tem dropout mas pelo args deixei ali oh
 
         self.layers = nn.Linear(in_features=input_size, out_features=num_classes)
 
@@ -32,7 +33,7 @@ class OneLayerModel(nn.Module):
     
 
 class TwoLayerModel(nn.Module):
-    def __init__(self, num_classes, input_size, hidden=(16, 8), dropout=0.2):
+    def __init__(self, num_classes, input_size, hidden=(64, 32), dropout=0.2):
         super().__init__()
         h1, h2 = hidden
         self.layers = nn.Sequential(
