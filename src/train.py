@@ -11,12 +11,12 @@ from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
 
 from src.dataset import GestureDataset
-from src.network_models import SimpleModel, DeepTestModel
+from src.network_models import LinearModel, OneLayerModel, TwoLayerModel
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=["landmarks", "angles", "distances", "combined"], default="landmarks")
-    parser.add_argument("--model", choices=["simple", "deep"], default="simple")
+    parser.add_argument("--model", choices=["linear", "onelayer", "twolayer"], default="twolayer")
     args = parser.parse_args()
 
     DATASETS = {
@@ -27,8 +27,9 @@ def main():
     }
     
     MODELS = {
-    "simple": SimpleModel,
-    "deep": DeepTestModel,
+    "linear": LinearModel,
+    "onelayer": OneLayerModel,
+    "twolayer": TwoLayerModel,
     }
 
     SRC_PATH = Path(__file__).resolve().parent

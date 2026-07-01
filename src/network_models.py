@@ -1,52 +1,53 @@
 import torch.nn as nn
-#ele pegou 5 classes
 
-class SimpleModel(nn.Module):
-    def __init__(self, num_classes=5, input_size=42):
+
+class LinearModel(nn.Module):
+    def __init__(self, num_classes, input_size):
+        super().__init__()
+
+        self.layers = nn.Linear(in_features=input_size, out_features=num_classes)
+
+    def forward(self, x):
+        output = self.layers(x)
+        return output
+    
+
+class OneLayerModel(nn.Module):
+    def __init__(self, num_classes, input_size, hidden=16, dropout=0.2):
         super().__init__()
 
         self.layers = nn.Sequential(
             # layer 1
-            nn.Linear(in_features=input_size, out_features=64),
+            nn.Linear(in_features=input_size, out_features=hidden),
             nn.ReLU(),
-            nn.Dropout(0.2),
-
-            # layer 2
-            nn.Linear(in_features=64, out_features=32),
-            nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(dropout),
 
             # last layer, output
-            nn.Linear(in_features=32, out_features=num_classes)#joinha, point up, nada
+            nn.Linear(in_features=hidden, out_features=num_classes)
         )
 
     def forward(self, x):
         output = self.layers(x)
         return output
     
-    
 
-class DeepTestModel(nn.Module):
-    def __init__(self, num_classes=5, input_size=42):
+class TwoLayerModel(nn.Module):
+    def __init__(self, num_classes, input_size, hidden=(16, 8), dropout=0.2):
         super().__init__()
-
+        h1, h2 = hidden
         self.layers = nn.Sequential(
             # layer 1
-            nn.Linear(in_features=input_size, out_features=64),
+            nn.Linear(in_features=input_size, out_features=h1),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(dropout),
 
             # layer 2
-            nn.Linear(in_features=64, out_features=64),
+            nn.Linear(in_features=h1, out_features=h2),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(dropout),
 
-            # layer 3
-            nn.Linear(in_features=64, out_features=32),
-            nn.ReLU(),
-
-            # last layer, output
-            nn.Linear(in_features=32, out_features=num_classes)#joinha, point up, nada
+            # output
+            nn.Linear(in_features=h2, out_features=num_classes)
         )
 
     def forward(self, x):
