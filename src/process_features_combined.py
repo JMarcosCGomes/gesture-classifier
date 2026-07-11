@@ -5,10 +5,8 @@ from pathlib import Path
 from src.process_raw import center_on_wrist, normalize_coordinates
 from src.process_features_angles import extract_joint_angles, extract_pinch_angles, normalize_angles
 from src.process_features_angles import JOINT_ANGLE_COLUMNS, PINCH_ANGLE_COLUMNS
-from src.process_features_distances import extract_tip_to_wrist
-from src.process_features_distances import TIP_TO_WRIST_COLUMNS
 
-COMBINED_COLUMNS = JOINT_ANGLE_COLUMNS + PINCH_ANGLE_COLUMNS + TIP_TO_WRIST_COLUMNS
+COMBINED_COLUMNS = JOINT_ANGLE_COLUMNS + PINCH_ANGLE_COLUMNS
 
 def process_features(row_coords):
     new_row_coords = center_on_wrist(row_coords)
@@ -19,10 +17,9 @@ def process_features(row_coords):
     angles = joint_angles + pinch_angles
     normalized_angles = normalize_angles(angles)
 
-    ttw_distances = extract_tip_to_wrist(new_row_coords)
+    #features = np.concatenate([normalized_angles])
+    features = normalized_angles
 
-    features = np.concatenate([normalized_angles, ttw_distances])
-    
     return features
 
 
