@@ -195,6 +195,8 @@ def main():
         'input_size': input_size,
         'num_classes': num_classes,
         'csv_path': str(CSV_PATH),
+        'train_frac': args.train_frac,
+        'dropout': args.dropout,
         'test_loss': round(avg_test_loss, 6),
         'test_accuracy': round(test_accuracy, 6),
         'best_val_loss': round(best_val_loss, 6),

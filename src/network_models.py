@@ -33,7 +33,7 @@ class OneLayerModel(nn.Module):
     
 
 class TwoLayerModel(nn.Module):
-    def __init__(self, num_classes, input_size, hidden=(64, 32), dropout=0.2):
+    def __init__(self, num_classes, input_size, hidden=(16, 8), dropout=0.2):
         super().__init__()
         h1, h2 = hidden
         self.layers = nn.Sequential(
