@@ -11,14 +11,14 @@ from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
 
 from src.dataset import GestureDataset
-from src.network_models import LinearModel, OneLayerModel, TwoLayerModel
+from src.network_models import LinearModel, OneLayerModel, TwoLayerModel, RBFModel
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=["landmarks", "angles", "distances", "combined"], default="landmarks")
-    parser.add_argument("--model", choices=["linear", "onelayer", "twolayer"], default="twolayer")
+    parser.add_argument("--model", choices=["linear", "onelayer", "twolayer", "rbf"], default="twolayer")
     parser.add_argument("--train-frac", type=float, default=1.0, help="quantos '%' do dataset vai ser usado no treino")
-    parser.add_argument("--dropout", type=float, default=0.2, help="dropout do networkmodel")
+    parser.add_argument("--dropout", type=float, default=0.0, help="dropout do networkmodel")
     args = parser.parse_args()
 
     DATASETS = {
@@ -32,6 +32,7 @@ def main():
     "linear": LinearModel,
     "onelayer": OneLayerModel,
     "twolayer": TwoLayerModel,
+    "rbf": RBFModel,
     }
 
     SRC_PATH = Path(__file__).resolve().parent

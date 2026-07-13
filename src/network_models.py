@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -53,4 +54,39 @@ class TwoLayerModel(nn.Module):
 
     def forward(self, x):
         output = self.layers(x)
+        return output
+
+
+class RBFLayer(nn.Module):
+    def __init__(self, input_size, num_centers):
+        super(self).__init__()
+        self.centers = nn.Parameter(torch.empty(num_centers, input_size))
+        self.log_betas = nn.Parameter(torch.empty(num_centers))
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        #TODO: use Kmeans or a better way
+        nn.init.uniform_(self.centers, -1.0, 1.0)
+        nn.init.constant_(self.log_betas, 0.0)
+
+    def forward(self, x):
+        beta = torch.exp(self.log_betas).unsqueeze(0) # (1, num_centers)
+        x_expanded = x.unsqueeze(1) # (batch_size, 1, input_size)
+        centers_expanded = self.centers.unsqueeze(0) # (1, num_centers, input_size)
+        # ||x - c_j||^2
+        distances = torch.sum((x_expanded - centers_expanded) ** 2, dim=2) # (batch_size, num_centers)
+        output = torch.exp(-beta * distances)
+        return output
+
+
+class RBFModel(nn.Module):
+    def __init__(self, num_classes, input_size, dropout=0.0,):
+        super().__init__()
+        num_centers = 3*input_size
+        self.rbf = RBFLayer(input_size, num_centers)
+        self.classifier = nn.Linear(num_centers, num_classes)
+        
+    def forward(self, x):
+        features = self.rbf(x)
+        output = self.classifier(features)
         return output
