@@ -59,7 +59,7 @@ class TwoLayerModel(nn.Module):
 
 class RBFLayer(nn.Module):
     def __init__(self, input_size, num_centers):
-        super(self).__init__()
+        super().__init__()
         self.centers = nn.Parameter(torch.empty(num_centers, input_size))
         self.log_betas = nn.Parameter(torch.empty(num_centers))
         self._initialize_weights()
