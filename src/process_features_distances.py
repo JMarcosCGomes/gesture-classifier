@@ -2,29 +2,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-
-def center_on_wrist(row_coords):
-    xs = row_coords[0::2]
-    ys = row_coords[1::2]
-    xs = xs - xs[0]
-    ys = ys - ys[0]
-
-    new_row_coords = np.stack([xs, ys], axis=1).flatten()
-    return new_row_coords
-
-
-def normalize_coordinates(row_coords):
-    xs = row_coords[0::2]
-    ys = row_coords[1::2]
-    scale = np.max(np.abs(np.concatenate([xs, ys])))
-    if scale == 0:
-        raise ValueError("Scale is zero, landmark data may be corrupted.")
-    xs = xs / scale
-    ys = ys / scale
-
-    new_row_coords = np.stack([xs, ys], axis=1).flatten()
-    return new_row_coords
-
+from src.process_raw import center_on_wrist, normalize_coordinates
 
 # ---------------------------------------------------------------------
 
