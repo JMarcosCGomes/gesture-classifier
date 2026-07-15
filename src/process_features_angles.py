@@ -36,12 +36,29 @@ TRIPLETS_JOINT = {
 }
 
 
-TRIPLETS_ABDUCTION = {
+TRIPLETS_ABDUCTION_MCP = {
     # every vertice is 0
     "thumb_index_mcp": (2, 0, 5), #
     "index_middle_mcp":  (5, 0, 9), #
     "middle_ring_mcp": (9, 0, 13), #
     "ring_pinky_mcp": (13, 0, 17), #
+}
+
+
+TRIPLETS_ABDUCTION_TIP = {
+    "thumb_index_tip": (4, 0, 8), #
+    "index_middle_tip": (8, 0, 12), #
+    "middle_ring_tip": (12, 0, 16), #
+    "ring_pinky_tip": (16, 0, 20), #
+}
+
+
+TRIPLETS_CURL = {
+    "thumb": (0, 1, 4), #
+    "index": (0, 5, 8), #
+    "middle": (0, 9, 12), #
+    "ring": (0, 13, 16), #
+    "pinky": (0, 17, 20), #
 }
 
 
@@ -68,9 +85,11 @@ TRIPLETS_PINCH_ALL = {
 
  
 JOINT_ANGLE_COLUMNS = [f"angle_joint_{name}" for name in TRIPLETS_JOINT]
-ABDUCTION_ANGLE_COLUMNS = [f"angle_abduction_{name}" for name in TRIPLETS_ABDUCTION]
+CURL_ANGLE_COLUMNS = [f"angle_curl_{name}" for name in TRIPLETS_CURL]
+ABDUCTION_MCP_ANGLE_COLUMNS = [f"angle_abduction_mcp_{name}" for name in TRIPLETS_ABDUCTION_MCP]
+ABDUCTION_TIP_ANGLE_COLUMNS = [f"angle_abduction_tip_{name}" for name in TRIPLETS_ABDUCTION_TIP]
 PINCH_ANGLE_COLUMNS = [f"angle_pinch_{name}" for name in TRIPLETS_PINCH]
-ANGLES_COLUMNS = JOINT_ANGLE_COLUMNS + ABDUCTION_ANGLE_COLUMNS + PINCH_ANGLE_COLUMNS
+ANGLES_COLUMNS = JOINT_ANGLE_COLUMNS + CURL_ANGLE_COLUMNS + ABDUCTION_MCP_ANGLE_COLUMNS + ABDUCTION_TIP_ANGLE_COLUMNS + PINCH_ANGLE_COLUMNS
 
 
 def get_point(row_coords, idx):
@@ -97,9 +116,23 @@ def extract_joint_angles(row_coords):
     return angles
 
 
-def extract_abduction_angles(row_coords):
+def extract_curl_angles(row_coords):
     angles = []
-    for a, b, c in TRIPLETS_ABDUCTION.values():
+    for a, b, c in TRIPLETS_CURL.values():
+        angles.append(angle_between(row_coords, a, b, c))
+    return angles
+
+
+def extract_abduction_mcp_angles(row_coords):
+    angles = []
+    for a, b, c in TRIPLETS_ABDUCTION_MCP.values():
+        angles.append(angle_between(row_coords, a, b, c))
+    return angles
+
+
+def extract_abduction_tip_angles(row_coords):
+    angles = []
+    for a, b, c in TRIPLETS_ABDUCTION_TIP.values():
         angles.append(angle_between(row_coords, a, b, c))
     return angles
 
@@ -121,9 +154,11 @@ def process_features(row_coords):
     new_row_coords = normalize_coordinates(new_row_coords)
 
     joint_angles = extract_joint_angles(new_row_coords)
-    abduction_angles = extract_abduction_angles(new_row_coords)
+    curl_angles = extract_curl_angles(new_row_coords)
+    abduction_mcp_angles = extract_abduction_mcp_angles(new_row_coords)
+    abduction_tip_angles = extract_abduction_tip_angles(new_row_coords)
     pinch_angles = extract_pinch_angles(new_row_coords)
-    angles = joint_angles + abduction_angles + pinch_angles
+    angles = joint_angles + curl_angles + abduction_mcp_angles + abduction_tip_angles + pinch_angles
     normalized_angles = normalize_angles(angles)
 
     return normalized_angles
