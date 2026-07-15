@@ -15,8 +15,10 @@ def center_on_wrist(row_coords):
 def normalize_coordinates(row_coords):
     xs = row_coords[0::2]
     ys = row_coords[1::2]
-    scale = np.max(np.abs(np.concatenate([xs, ys])))
-    if scale == 0:
+    wrist = np.array([xs[0], ys[0]])
+    middle_mcp = np.array([xs[9], ys[9]])
+    scale = np.linalg.norm(middle_mcp - wrist)
+    if scale <= 1e-8:
         raise ValueError("Scale is zero, landmark data may be corrupted.")
     xs = xs / scale
     ys = ys / scale
