@@ -71,7 +71,30 @@ def main():
     # --- Model ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
-    model = MODELS[args.model](num_classes=num_classes, input_size=input_size, dropout=args.dropout).to(device)
+    
+    match args.model:
+        case "linear":
+            model = LinearModel(
+                num_classes=num_classes,
+                input_size=input_size,
+            )
+        case "onelayer":
+            model = OneLayerModel(
+                num_classes=num_classes,
+                input_size=input_size,
+                dropout=args.dropout,
+            )
+        case "twolayer":
+            model = TwoLayerModel(
+                num_classes=num_classes,
+                input_size=input_size,
+                dropout=args.dropout,
+            )
+        case "rbf":
+            model = RBFModel(
+                num_classes=num_classes,
+                input_size=input_size,
+            )
     model_name = model.__class__.__name__
 
     # --- Run ID --- run id using datetime, to keep unique model name
