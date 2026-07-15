@@ -9,13 +9,14 @@ from pathlib import Path
 from datetime import datetime
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
+from sklearn.cluster import KMeans
 
 from src.dataset import GestureDataset
 from src.network_models import LinearModel, OneLayerModel, TwoLayerModel, RBFModel
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", choices=["landmarks", "angles", "distances", "combined"], default="landmarks")
+    parser.add_argument("--dataset", choices=["landmarks", "landmarksreduced", "angles", "anglesreduced", "distances", "combined"], default="landmarks")
     parser.add_argument("--model", choices=["linear", "onelayer", "twolayer", "rbf"], default="twolayer")
     parser.add_argument("--train-frac", type=float, default=1.0, help="quantos '%' do dataset vai ser usado no treino")
     parser.add_argument("--dropout", type=float, default=0.0, help="dropout do networkmodel")
@@ -23,7 +24,9 @@ def main():
 
     DATASETS = {
     "landmarks": "processed_landmarks.csv",
+    "landmarksreduced": "landmarks_reduced.csv",
     "angles": "featured_angles.csv",
+    "anglesreduced": "featured_angles_reduced.csv",
     "distances": "featured_distances.csv",
     "combined": "featured_combined.csv",
     }
@@ -77,24 +80,31 @@ def main():
             model = LinearModel(
                 num_classes=num_classes,
                 input_size=input_size,
-            )
+            ).to(device)
         case "onelayer":
             model = OneLayerModel(
                 num_classes=num_classes,
                 input_size=input_size,
                 dropout=args.dropout,
-            )
+            ).to(device)
         case "twolayer":
             model = TwoLayerModel(
                 num_classes=num_classes,
                 input_size=input_size,
                 dropout=args.dropout,
-            )
+            ).to(device)
         case "rbf":
+            #TODO: decidir se vai só usar kmeans ou vai criar arg pra kmeans ou random. deixei no modelo uma base tranquila.
+            num_centers = 3 * num_classes #isso aqui ta errado mas é o que tem pra hoje. É a mesma conta feita no rbfmodel já
+            kmeans = KMeans(n_clusters=num_centers, random_state=42, n_init="auto")
+            X_train = dataset.X[train_idx]
+            kmeans.fit(X_train.numpy())
+            centers = torch.tensor(kmeans.cluster_centers_, dtype=torch.float32)
             model = RBFModel(
                 num_classes=num_classes,
                 input_size=input_size,
-            )
+                centers=centers,
+            ).to(device)
     model_name = model.__class__.__name__
 
     # --- Run ID --- run id using datetime, to keep unique model name

@@ -3,9 +3,8 @@ import torch.nn as nn
 
 
 class LinearModel(nn.Module):
-    def __init__(self, num_classes, input_size, dropout=0.2):
+    def __init__(self, num_classes, input_size):
         super().__init__()
-        #não tem dropout mas pelo args deixei ali oh
 
         self.layers = nn.Linear(in_features=input_size, out_features=num_classes)
 
@@ -58,15 +57,18 @@ class TwoLayerModel(nn.Module):
 
 
 class RBFLayer(nn.Module):
-    def __init__(self, input_size, num_centers):
+    def __init__(self, input_size, num_centers, centers=None):
         super().__init__()
         self.centers = nn.Parameter(torch.empty(num_centers, input_size))
         self.log_betas = nn.Parameter(torch.empty(num_centers))
-        self._initialize_weights()
+        self._initialize_weights(centers)
 
-    def _initialize_weights(self):
-        #TODO: use Kmeans or a better way
-        nn.init.uniform_(self.centers, -1.0, 1.0)
+    def _initialize_weights(self, centers=None):
+        if centers is None:
+            nn.init.uniform_(self.centers, -1.0, 1.0)
+        else:
+            with torch.no_grad():
+                self.centers.copy_(centers)
         nn.init.constant_(self.log_betas, 0.0)
 
     def forward(self, x):
@@ -80,10 +82,10 @@ class RBFLayer(nn.Module):
 
 
 class RBFModel(nn.Module):
-    def __init__(self, num_classes, input_size, dropout=0.0,):
+    def __init__(self, num_classes, input_size, centers=None):
         super().__init__()
-        num_centers = 3*input_size
-        self.rbf = RBFLayer(input_size, num_centers)
+        num_centers = 3 * num_classes
+        self.rbf = RBFLayer(input_size, num_centers, centers)
         self.classifier = nn.Linear(num_centers, num_classes)
         
     def forward(self, x):
