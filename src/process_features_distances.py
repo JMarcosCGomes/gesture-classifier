@@ -32,6 +32,17 @@ PAIRS_TIP_TO_THUMB = {
     "pinky": (20, 4), #
 }
 
+#
+PAIRS_TIP_TO_TIP = {
+    "index_middle": (8, 12), #
+    "index_ring": (8, 16), #
+    "index_pinky": (8, 20), #
+    "middle_ring": (12, 16), #
+    "middle_pinky": (12, 20), #
+    "ring_pinky": (16, 20), #
+}
+
+
 PAIRS_PIP_TO_WRIST = {
     "thumb_mcp": (2, 0), #thumb eh diferente
     "index": (6, 0), #
@@ -52,10 +63,11 @@ PAIRS_MCP_TO_WRIST = {
 #esses nomes tão feios, depois avalia uma forma melhor de nomear
 TIP_TO_WRIST_COLUMNS = [f"dist_tip_wrist_{name}" for name in PAIRS_TIP_TO_WRIST]
 TIP_TO_THUMB_COLUMNS = [f"dist_tip_thumb_{name}" for name in PAIRS_TIP_TO_THUMB]
+TIP_TO_TIP_COLUMNS = [f"dist_tip_tip_{name}" for name in PAIRS_TIP_TO_TIP]
 PIP_TO_WRIST_COLUMNS = [f"dist_pip_wrist_{name}" for name in PAIRS_PIP_TO_WRIST]
 MCP_TO_WRIST_COLUMNS = [f"dist_mcp_wrist_{name}" for name in PAIRS_MCP_TO_WRIST]
 
-DISTANCE_COLUMNS = TIP_TO_WRIST_COLUMNS + TIP_TO_THUMB_COLUMNS + PIP_TO_WRIST_COLUMNS + MCP_TO_WRIST_COLUMNS
+DISTANCE_COLUMNS = TIP_TO_WRIST_COLUMNS + TIP_TO_THUMB_COLUMNS + TIP_TO_TIP_COLUMNS + PIP_TO_WRIST_COLUMNS + MCP_TO_WRIST_COLUMNS
 
 # ---------------------------------------------------------------------
 
@@ -83,6 +95,13 @@ def extract_tip_to_thumb(row_coords):
     return distances
 
 
+def extract_tip_to_tip(row_coords):
+    distances = []
+    for a, b in PAIRS_TIP_TO_TIP.values():
+        distances.append(euclidean_distance(row_coords, a, b))
+    return distances
+
+
 def extract_pip_to_wrist(row_coords):
     distances = []
     for a, b in PAIRS_PIP_TO_WRIST.values():
@@ -100,12 +119,13 @@ def process_features(row_coords):
     new_row_coords = center_on_wrist(row_coords)
     new_row_coords = normalize_coordinates(new_row_coords)
 
-    ttw_distances = extract_tip_to_wrist(row_coords)
-    ttt_distances = extract_tip_to_thumb(row_coords)
-    ptw_distances = extract_pip_to_wrist(row_coords)
-    mtw_distances = extract_mcp_to_wrist(row_coords)
+    ttw_distances = extract_tip_to_wrist(new_row_coords)
+    ttthumb_distances = extract_tip_to_thumb(new_row_coords)
+    tttip_distances = extract_tip_to_tip(new_row_coords)
+    ptw_distances = extract_pip_to_wrist(new_row_coords)
+    mtw_distances = extract_mcp_to_wrist(new_row_coords)
 
-    distances = ttw_distances + ttt_distances + ptw_distances + mtw_distances
+    distances = ttw_distances + ttthumb_distances + tttip_distances + ptw_distances + mtw_distances
 
     return distances
 
