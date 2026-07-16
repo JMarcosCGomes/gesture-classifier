@@ -26,7 +26,6 @@ def main():
     "landmarks": "processed_landmarks.csv",
     "landmarksreduced": "landmarks_reduced.csv",
     "angles": "featured_angles.csv",
-    "anglesreduced": "featured_angles_reduced.csv",
     "distances": "featured_distances.csv",
     "curlnabductionmcpntipttip": "combined_curl_abductionmcp_tipttip.csv",
     "curlnabductionmcp": "combined_curl_abductionmcp.csv",
@@ -34,13 +33,6 @@ def main():
     "jointnpinch": "combined_joint_pinch.csv",
     }
     
-    #acho que da ate pra tirar isso aqui
-    MODELS = {
-    "linear": LinearModel,
-    "onelayer": OneLayerModel,
-    "twolayer": TwoLayerModel,
-    "rbf": RBFModel,
-    }
 
     SRC_PATH = Path(__file__).resolve().parent
     PROJECT_ROOT = SRC_PATH.parent
