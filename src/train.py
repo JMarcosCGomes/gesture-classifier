@@ -16,7 +16,7 @@ from src.network_models import LinearModel, OneLayerModel, TwoLayerModel, RBFMod
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", choices=["landmarks", "landmarksreduced", "angles", "anglesreduced", "distances", "combined"], default="landmarks")
+    parser.add_argument("--dataset", choices=["landmarks", "landmarksreduced", "angles", "anglesreduced", "distances", "curlnabductionmcpntipttip", "curlnabductionmcp", "curlnpinch", "jointnpinch"], default="landmarks")
     parser.add_argument("--model", choices=["linear", "onelayer", "twolayer", "rbf"], default="twolayer")
     parser.add_argument("--train-frac", type=float, default=1.0, help="quantos '%' do dataset vai ser usado no treino")
     parser.add_argument("--dropout", type=float, default=0.0, help="dropout do networkmodel")
@@ -28,9 +28,13 @@ def main():
     "angles": "featured_angles.csv",
     "anglesreduced": "featured_angles_reduced.csv",
     "distances": "featured_distances.csv",
-    "combined": "featured_combined.csv",
+    "curlnabductionmcpntipttip": "combined_curl_abductionmcp_tipttip.csv",
+    "curlnabductionmcp": "combined_curl_abductionmcp.csv",
+    "curlnpinch": "combined_curl_pinch.csv",
+    "jointnpinch": "combined_joint_pinch.csv",
     }
     
+    #acho que da ate pra tirar isso aqui
     MODELS = {
     "linear": LinearModel,
     "onelayer": OneLayerModel,

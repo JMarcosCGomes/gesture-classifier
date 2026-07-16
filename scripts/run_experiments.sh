@@ -1,16 +1,18 @@
 #!/bin/bash
 set -e
 
-DATASETS=("landmarks" "angles" "distances" "combined")
-#DATASETS=("landmarks" "distances" "combined")
 
-MODELS=("linear" "onelayer" "twolayer")
+DATASETS=("landmarks"  "landmarksreduced" "distances" "angles" "curlnabductionmcpntipttip" "curlnabductionmcp" "curlnpinch" "jointnpinch")
+#DATASETS=("landmarks" "landmarksreduced")
+
+#MODELS=("linear" "onelayer" "twolayer" "rbf")
+MODELS=("linear" "onelayer" "rbf")
 
 #TRAIN_FRACS=(0.1 0.25 0.5 1.0)
-TRAIN_FRACS=(0.1 0.5 1.0)
+TRAIN_FRACS=(1.0)
 
-DROPOUTS=(0.0 0.2)
-#DROPOUT=0.0
+#DROPOUTS=(0.0 0.2)
+DROPOUTS=(0.0)
 
 total=$((${#DATASETS[@]} * ${#MODELS[@]} * ${#TRAIN_FRACS[@]} * ${#DROPOUTS[@]}))
 count=0
